@@ -21,6 +21,10 @@ func (service *Service) SaveRecord(c *gin.Context){
 		fmt.Println(err.Error())
 		return
 	}
+	
+	if request.Lat == 0 && request.Long == 0 {
+		return
+	}
 
 	recordToCreate := request.ToModel()
 
