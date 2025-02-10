@@ -33,7 +33,7 @@ func (service *Service) GetLatestRecord(c *gin.Context){
 
 	service.DB.Order("created_at desc").Where("identifier = ?", identifier).First(&record)
 
-	c.JSON(http.StatusOK, record)
+	c.JSON(http.StatusOK, record.ToResponseRecord())
 }
 
 func(service *Service) GetAllRecords(c *gin.Context){
@@ -41,7 +41,12 @@ func(service *Service) GetAllRecords(c *gin.Context){
 	var records []db.Record
 	service.DB.Order("created_at asc").Where("identifier = ?", identifier).Find(&records)
 
-	c.JSON(http.StatusOK, records)
+	responseRecords := make([]db.ResponseRecord, len(records))
+	for index,record := range records {
+		responseRecords[index] = record.ToResponseRecord()
+	}
+
+	c.JSON(http.StatusOK, responseRecords)
 }
 
 func(service *Service) GetTrackers(c *gin.Context){

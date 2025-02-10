@@ -12,7 +12,7 @@ func RegisterRoutes(r *gin.Engine, config types.ServiceConfig){
 
 	trackerGroup := r.Group("/tracker")
 	trackerGroup.POST("/latest", service.SaveRecord)
-	trackerGroup.GET("/latest/:tracker", service.GetLatestRecord)
-	trackerGroup.GET("/all/:tracker", service.GetAllRecords)
+	trackerGroup.GET("/latest/:identifier", service.GetLatestRecord)
+	trackerGroup.GET("/all/:identifier", service.GetAllRecords)
 	trackerGroup.GET("/trackers", service.GetTrackers)
 }

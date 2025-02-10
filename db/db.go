@@ -19,6 +19,18 @@ type Record struct {
 	Identifier string `json:"identifier"`
 }
 
+type ResponseRecord struct {
+	Lat float32 `json:"lat"`
+	Long float32 `json:"long"`
+}
+
+func (r *Record) ToResponseRecord() ResponseRecord {
+	return ResponseRecord{
+		Lat: r.Lat,
+		Long: r.Long,
+	}
+}
+
 
 var db *gorm.DB
 
