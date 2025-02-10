@@ -3,6 +3,7 @@ package tracker
 import "tracker/db"
 
 
+
 type SaveRecordDto struct {
 	Lat float32 `json:"lat"`
 	Long float32 `json:"long"`

@@ -37,7 +37,7 @@ func (service *Service) GetLatestRecord(c *gin.Context){
 
 func(service *Service) GetAllRecords(c *gin.Context){
 	var records []db.Record
-	service.DB.Order("created_at desc").Find(&records)
+	service.DB.Order("created_at asc").Find(&records)
 
 	c.JSON(http.StatusOK, records)
 }

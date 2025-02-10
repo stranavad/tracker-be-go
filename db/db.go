@@ -19,6 +19,7 @@ type Record struct {
 	Identifier string `json:"identifier"`
 }
 
+
 var db *gorm.DB
 
 func init() {
