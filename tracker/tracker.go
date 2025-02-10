@@ -28,16 +28,29 @@ func (service *Service) SaveRecord(c *gin.Context){
 }
 
 func (service *Service) GetLatestRecord(c *gin.Context){
+	identifier := c.Param("identifier")
 	var record db.Record
 
-	service.DB.Order("created_at desc").First(&record)
+	service.DB.Order("created_at desc").Where("identifier = ?", identifier).First(&record)
 
 	c.JSON(http.StatusOK, record)
 }
 
 func(service *Service) GetAllRecords(c *gin.Context){
+	identifier := c.Param("identifier")
 	var records []db.Record
-	service.DB.Order("created_at asc").Find(&records)
+	service.DB.Order("created_at asc").Where("identifier = ?", identifier).Find(&records)
 
 	c.JSON(http.StatusOK, records)
+}
+
+func(service *Service) GetTrackers(c *gin.Context){
+	var records []db.Record
+	service.DB.Distinct("identifier").Find(&records)
+	var identifiers []string
+	for _, value := range records {
+		identifiers = append(identifiers, value.Identifier)
+	}
+
+	c.JSON(http.StatusOK, identifiers)
 }
