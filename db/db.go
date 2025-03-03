@@ -3,32 +3,66 @@ package db
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
+type GormModelDefault struct {
+	ID        uint `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+}
+
+type Session struct {
+	GormModelDefault
+	Name string `json:"name"`
+	StartTime time.Time `json:"startTime"`
+	EndTime *time.Time `json:"endTime"`
+}
+
+type Tracker struct {
+	ID string `gorm:"primarykey" json:"id"`
+	Name string `json:"name"`
+}
+
 
 type Record struct {
-	gorm.Model
+	GormModelDefault
 	Lat float32 `json:"lat"`
 	Long float32 `json:"long"`
 	Rssi int16 `json:"rssi"`
 	Snr int8 `json:"snr"`
-	Identifier string `json:"identifier"`
+	TrackerID string `json:"trackerId"`
+	SessionID *uint `json:"sessionId"`
 }
 
-type ResponseRecord struct {
-	Lat float32 `json:"lat"`
-	Long float32 `json:"long"`
+/* Response types */
+type SessionResponse struct {
+	Session
+	Trackers []TrackerResponse `json:"trackers"`
 }
 
-func (r *Record) ToResponseRecord() ResponseRecord {
-	return ResponseRecord{
+type TrackerResponse struct {
+	Tracker
+	LastRecord *Record `json:"latestRecord"`
+	FirstRecord *Record `json:"firstRecord"`
+	Records []RecordResponse `json:"records"`
+}
+
+func(r *Record) ToResponse() RecordResponse {
+	return RecordResponse{
 		Lat: r.Lat,
 		Long: r.Long,
 	}
+}
+
+type RecordResponse struct {
+	Lat float32 `json:"lat"`
+	Long float32 `json:"long"`
 }
 
 
@@ -52,7 +86,7 @@ func init() {
 		panic("Failed to connect database")
 	}
 
-	err = db.AutoMigrate(&Record{})
+	err = db.AutoMigrate(&Session{}, &Tracker{}, &Record{})
 	if err != nil {
 		panic("Failed to migrate database")
 	}

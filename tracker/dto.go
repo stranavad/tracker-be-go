@@ -13,12 +13,18 @@ type SaveRecordDto struct {
 }
 
 
-func (dto *SaveRecordDto) ToModel() db.Record {
+type UpdateTrackerDto struct {
+	ID string `json:"id"`
+	Name string `json:"name"`
+}
+
+func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
 	return db.Record{
 		Lat: dto.Lat,
 		Long: dto.Long,
 		Rssi: dto.Rssi,
 		Snr: dto.Snr,
-		Identifier: dto.Identifier,
+		TrackerID: dto.Identifier,
+		SessionID: sessionId,
 	}
 }
