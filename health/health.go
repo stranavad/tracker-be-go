@@ -45,6 +45,7 @@ func (service *Service) UpdateDevice(c *gin.Context){
 	}
 
 	foundDevice.Name = request.Name
+	foundDevice.Color = request.Color
 
 	if err := service.DB.Save(&foundDevice).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()});
@@ -63,7 +64,7 @@ func(service *Service) GetHealthData(c *gin.Context){
 
 
 	// Tak tady se mi trochu nepovedlo to udelat v jedne query takze N+1 here you are
-	responseDevices := make([]db.Device, len(devices))
+	responseDevices := make([]db.DeviceResponse, len(devices))
 	for i, device := range devices {
 		var deviceHealth []db.DeviceHealth
 
@@ -73,8 +74,7 @@ func(service *Service) GetHealthData(c *gin.Context){
 			return
 		}
 
-		device.Health = deviceHealth
-		responseDevices[i] = device
+		responseDevices[i] = device.ToResponse(deviceHealth)
 	}
 
 	c.JSON(http.StatusOK, responseDevices)

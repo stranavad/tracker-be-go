@@ -77,6 +77,7 @@ func (service *Service) UpdateTracker(c *gin.Context){
 	}
 
 	foundTracker.Name = request.Name
+	foundTracker.Color = request.Color
 
 	if err := service.DB.Save(&foundTracker).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()});
@@ -154,7 +155,7 @@ func(service *Service) GetTrackersHealth(c *gin.Context){
 		return;
 	}
 
-	responseTrackers := make([]TrackerHealthResponse, len(trackers))
+	responseTrackers := make([]db.DeviceResponse, len(trackers))
 
 	for i, tracker := range trackers {
 		var records []db.Record
@@ -165,10 +166,7 @@ func(service *Service) GetTrackersHealth(c *gin.Context){
 			return
 		}
 
-		responseTrackers[i] = TrackerHealthResponse{
-			Tracker: tracker,
-			Records: records,
-		}
+		responseTrackers[i] = tracker.ToResponse(records)
 	}
 
 	c.JSON(http.StatusOK, responseTrackers)

@@ -27,12 +27,48 @@ type Session struct {
 type Tracker struct {
 	ID string `gorm:"primarykey" json:"id"`
 	Name string `json:"name"`
+	Color string `json:"color"`
 }
 
 type Device struct {
 	ID string `gorm:"primaryKey" json:"id"`
 	Name string `json:"name"`
-	Health []DeviceHealth `json:"health"`
+	Color string `json:"color"`
+}
+
+type DeviceResponse struct {
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Color string `json:"color"`
+	Records []DeviceHealthResponse `json:"records"`
+}
+
+func(tracker *Tracker) ToResponse(healthRecords []Record) DeviceResponse {
+	records := make([]DeviceHealthResponse, len(healthRecords))
+	for i, record := range healthRecords{
+		records[i] = record.ToResponseHealth()
+	}
+
+	return DeviceResponse {
+		ID: tracker.ID,
+		Color: tracker.Color,
+		Name: tracker.Name,
+		Records: records,
+	}
+}
+
+func(device *Device) ToResponse(healthRecords []DeviceHealth)DeviceResponse {
+	records := make([]DeviceHealthResponse, len(healthRecords))
+	for i, record := range healthRecords{
+		records[i] = record.ToResponseHealth()
+	}
+
+	return DeviceResponse {
+		ID: device.ID,
+		Name: device.Name,
+		Color: device.Color,
+		Records: records,
+	}
 }
 
 type DeviceHealth struct {
@@ -41,6 +77,14 @@ type DeviceHealth struct {
 	DeviceID string `json:"deviceId"`
 	Voltage float64 `json:"voltage"`
 	Trace string `json:"trace"`
+}
+
+func(deviceHealth *DeviceHealth) ToResponseHealth() DeviceHealthResponse{
+	return DeviceHealthResponse {
+		Trace: deviceHealth.Trace,
+		Timestamp: deviceHealth.CreatedAt.Unix(),
+		Voltage: deviceHealth.Voltage,
+	}
 }
 
 
@@ -54,6 +98,21 @@ type Record struct {
 	Voltage float64 `json:"voltage"`
 	DeviceTimestamp int64 `json:"timestamp"`
 }
+
+func(record *Record) ToResponseHealth() DeviceHealthResponse {
+	return DeviceHealthResponse {
+		Trace: record.Trace,
+		Timestamp: record.DeviceTimestamp,
+		Voltage: record.Voltage,
+	}
+}
+
+type DeviceHealthResponse struct {
+	Trace string `json:"trace"`
+	Timestamp int64 `json:"timestamp"`
+	Voltage float64 `json:"voltage"`
+}
+
 
 /* Response types */
 type SessionResponse struct {

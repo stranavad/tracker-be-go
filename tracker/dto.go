@@ -23,6 +23,7 @@ type SaveRecordDto struct {
 type UpdateTrackerDto struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
+	Color string `json:"color"`
 }
 
 func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
@@ -41,14 +42,3 @@ func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
 	}
 }
 
-
-type TrackerHealthResponse struct {
-	db.Tracker
-	Records []db.Record `json:"records"`
-}
-
-
-type TrackerRecordHealth struct {
-	Trace string `json:"trace"`
-	Timestamp int64 `json:"timestamp"`
-}
