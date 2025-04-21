@@ -56,7 +56,7 @@ func (service *Service) UpdateDevice(c *gin.Context){
 
 func(service *Service) GetHealthData(c *gin.Context){
 	var devices []db.Device
-	if err := service.DB.Find(&devices).Error; err != nil {
+	if err := service.DB.Order("id ASC").Find(&devices).Error; err != nil {
 		println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

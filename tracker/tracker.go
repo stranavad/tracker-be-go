@@ -149,7 +149,7 @@ func(service *Service) GetTrackers(c *gin.Context){
 func(service *Service) GetTrackersHealth(c *gin.Context){
 	var trackers []db.Tracker
 
-	if err := service.DB.Find(&trackers).Error; err != nil {
+	if err := service.DB.Order("id ASC").Find(&trackers).Error; err != nil {
 		println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return;
