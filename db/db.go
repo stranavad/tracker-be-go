@@ -51,6 +51,7 @@ type Record struct {
 	TrackerID string `json:"trackerId"`
 	SessionID *uint `json:"sessionId"`
 	Trace string `json:"trace"`
+	Voltage float64 `json:"voltage"`
 	DeviceTimestamp int64 `json:"timestamp"`
 }
 

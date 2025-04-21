@@ -66,7 +66,13 @@ func(service *Service) GetHealthData(c *gin.Context){
 	responseDevices := make([]db.Device, len(devices))
 	for i, device := range devices {
 		var deviceHealth []db.DeviceHealth
-		service.DB.Where("device_id = ?", device.ID).Order("created_at DESC").Limit(100).Find(&deviceHealth)
+
+		if err := service.DB.Where("device_id = ?", device.ID).Order("created_at DESC").Limit(100).Find(&deviceHealth).Error; err != nil {
+			println(err.Error())
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
 		device.Health = deviceHealth
 		responseDevices[i] = device
 	}

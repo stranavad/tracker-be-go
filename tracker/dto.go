@@ -1,6 +1,9 @@
 package tracker
 
-import "tracker/db"
+import (
+	"math"
+	"tracker/db"
+)
 
 type GetLastRecordsDto struct {
 	TrackerID string `json:"trackerId"`
@@ -13,6 +16,7 @@ type SaveRecordDto struct {
 	Identifier string `json:"identifier"`
 	Trace string `json:"trace"`
 	Timestamp int64 `json:"timestamp"`
+	Voltage float64 `json:"voltage"`
 }
 
 
@@ -22,6 +26,9 @@ type UpdateTrackerDto struct {
 }
 
 func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
+	ratio := math.Pow(10, float64(2))
+	roundedVoltage :=  math.Round(dto.Voltage*ratio) / ratio
+
 	return db.Record{
 		Lat: dto.Lat,
 		Long: dto.Long,
@@ -29,5 +36,19 @@ func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
 		SessionID: sessionId,
 		Trace: dto.Trace,
 		DeviceTimestamp: dto.Timestamp,
+		Voltage: roundedVoltage,
+
 	}
+}
+
+
+type TrackerHealthResponse struct {
+	db.Tracker
+	Records []db.Record `json:"records"`
+}
+
+
+type TrackerRecordHealth struct {
+	Trace string `json:"trace"`
+	Timestamp int64 `json:"timestamp"`
 }

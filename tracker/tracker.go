@@ -144,3 +144,32 @@ func(service *Service) GetTrackers(c *gin.Context){
 
 	c.JSON(http.StatusOK, trackers)
 }
+
+func(service *Service) GetTrackersHealth(c *gin.Context){
+	var trackers []db.Tracker
+
+	if err := service.DB.Find(&trackers).Error; err != nil {
+		println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return;
+	}
+
+	responseTrackers := make([]TrackerHealthResponse, len(trackers))
+
+	for i, tracker := range trackers {
+		var records []db.Record
+
+		if err := service.DB.Where("tracker_id = ?", tracker.ID).Order("device_timestamp DESC").Limit(100).Find(&records).Error; err != nil {
+			println(err.Error());
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
+		responseTrackers[i] = TrackerHealthResponse{
+			Tracker: tracker,
+			Records: records,
+		}
+	}
+
+	c.JSON(http.StatusOK, responseTrackers)
+}
