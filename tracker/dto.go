@@ -12,6 +12,7 @@ type SaveRecordDto struct {
 	Long float32 `json:"long"`
 	Identifier string `json:"identifier"`
 	Trace string `json:"trace"`
+	Timestamp int64 `json:"timestamp"`
 }
 
 
@@ -27,5 +28,6 @@ func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
 		TrackerID: dto.Identifier,
 		SessionID: sessionId,
 		Trace: dto.Trace,
+		DeviceTimestamp: dto.Timestamp,
 	}
 }

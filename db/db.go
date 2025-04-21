@@ -51,6 +51,7 @@ type Record struct {
 	TrackerID string `json:"trackerId"`
 	SessionID *uint `json:"sessionId"`
 	Trace string `json:"trace"`
+	DeviceTimestamp int64 `json:"timestamp"`
 }
 
 /* Response types */
