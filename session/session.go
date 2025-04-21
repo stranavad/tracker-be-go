@@ -194,7 +194,7 @@ func (service *Service) GetSessionById(c *gin.Context){
 	}
 
 	var records []db.Record
-	if err := service.DB.Where("session_id = ?", sessionId).Order("device_timestamp desc").Find(&records).Error; err != nil {
+	if err := service.DB.Where("session_id = ?", sessionId).Order("device_timestamp ASC").Find(&records).Error; err != nil {
 		println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
