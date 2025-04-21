@@ -48,8 +48,6 @@ type Record struct {
 	GormModelDefault
 	Lat float32 `json:"lat"`
 	Long float32 `json:"long"`
-	Rssi int16 `json:"rssi"`
-	Snr int8 `json:"snr"`
 	TrackerID string `json:"trackerId"`
 	SessionID *uint `json:"sessionId"`
 	Trace string `json:"trace"`
