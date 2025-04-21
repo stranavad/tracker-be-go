@@ -111,6 +111,7 @@ func (service *Service) SaveHealth(c *gin.Context){
 		DeviceID: request.DeviceID,
 		CreatedAt: time.Now(),
 		Voltage: roundedVoltage,
+		Trace: request.Trace,
 	}
 
 	if err := service.DB.Create(&healthToCreate).Error; err != nil {

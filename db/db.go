@@ -40,6 +40,7 @@ type DeviceHealth struct {
 	CreatedAt time.Time `json:"createdAt"`
 	DeviceID string `json:"deviceId"`
 	Voltage float64 `json:"voltage"`
+	Trace string `json:"trace"`
 }
 
 
