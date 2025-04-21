@@ -2,6 +2,7 @@ package health
 
 import (
 	"errors"
+	"math"
 	"net/http"
 	"time"
 	"tracker/db"
@@ -102,10 +103,14 @@ func (service *Service) SaveHealth(c *gin.Context){
 		}
 	}
 
+	// Round voltage
+	ratio := math.Pow(10, float64(2))
+	roundedVoltage :=  math.Round(request.Voltage*ratio) / ratio
+
 	healthToCreate := db.DeviceHealth {
 		DeviceID: request.DeviceID,
 		CreatedAt: time.Now(),
-		Voltage: request.Voltage,
+		Voltage: roundedVoltage,
 	}
 
 	if err := service.DB.Create(&healthToCreate).Error; err != nil {

@@ -39,7 +39,7 @@ type DeviceHealth struct {
 	ID        uint `gorm:"primarykey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	DeviceID string `json:"deviceId"`
-	Voltage float32 `json:"voltage"`
+	Voltage float64 `json:"voltage"`
 }
 
 

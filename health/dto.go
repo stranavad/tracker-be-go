@@ -2,7 +2,7 @@ package health
 
 type SaveHealthDto struct {
 	DeviceID string `json:"deviceId"`
-	Voltage float32 `json:"voltage"`
+	Voltage float64 `json:"voltage"`
 }
 
 
