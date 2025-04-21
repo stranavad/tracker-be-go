@@ -2,7 +2,10 @@ package tracker
 
 import "tracker/db"
 
-
+type GetLastRecordsDto struct {
+	TrackerID string `json:"trackerId"`
+	LastRecordID *uint `json:"lastRecordId"`
+}
 
 type SaveRecordDto struct {
 	Lat float32 `json:"lat"`
@@ -10,6 +13,7 @@ type SaveRecordDto struct {
 	Rssi int16 `json:"rssi"`
 	Snr int8 `json:"snr"`
 	Identifier string `json:"identifier"`
+	Trace string `json:"trace"`
 }
 
 
@@ -26,5 +30,6 @@ func (dto *SaveRecordDto) ToModel(sessionId *uint) db.Record {
 		Snr: dto.Snr,
 		TrackerID: dto.Identifier,
 		SessionID: sessionId,
+		Trace: dto.Trace,
 	}
 }

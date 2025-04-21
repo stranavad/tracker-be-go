@@ -2,6 +2,7 @@ package main
 
 import (
 	"tracker/db"
+	"tracker/health"
 	"tracker/session"
 	"tracker/tracker"
 	"tracker/types"
@@ -29,5 +30,6 @@ func main() {
 
 	tracker.RegisterRoutes(r, serviceConfig)
 	session.RegisterRoutes(r, serviceConfig)
+	health.RegisterRoutes(r, serviceConfig)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

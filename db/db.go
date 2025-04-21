@@ -29,6 +29,19 @@ type Tracker struct {
 	Name string `json:"name"`
 }
 
+type Device struct {
+	ID string `gorm:"primaryKey" json:"id"`
+	Name string `json:"name"`
+	Health []DeviceHealth `json:"health"`
+}
+
+type DeviceHealth struct {
+	ID        uint `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	DeviceID string `json:"deviceId"`
+	Voltage float32 `json:"voltage"`
+}
+
 
 type Record struct {
 	GormModelDefault
@@ -38,6 +51,7 @@ type Record struct {
 	Snr int8 `json:"snr"`
 	TrackerID string `json:"trackerId"`
 	SessionID *uint `json:"sessionId"`
+	Trace string `json:"trace"`
 }
 
 /* Response types */
@@ -48,21 +62,7 @@ type SessionResponse struct {
 
 type TrackerResponse struct {
 	Tracker
-	LastRecord *Record `json:"latestRecord"`
-	FirstRecord *Record `json:"firstRecord"`
-	Records []RecordResponse `json:"records"`
-}
-
-func(r *Record) ToResponse() RecordResponse {
-	return RecordResponse{
-		Lat: r.Lat,
-		Long: r.Long,
-	}
-}
-
-type RecordResponse struct {
-	Lat float32 `json:"lat"`
-	Long float32 `json:"long"`
+	Records []Record `json:"records"`
 }
 
 
@@ -86,7 +86,7 @@ func init() {
 		panic("Failed to connect database")
 	}
 
-	err = db.AutoMigrate(&Session{}, &Tracker{}, &Record{})
+	err = db.AutoMigrate(&Session{}, &Tracker{}, &Record{}, &Device{}, &DeviceHealth{})
 	if err != nil {
 		panic("Failed to migrate database")
 	}

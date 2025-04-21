@@ -217,23 +217,14 @@ func (service *Service) GetSessionById(c *gin.Context){
 	for i, tracker := range trackers {
 		trackerRecords := trackerMap[tracker.ID]
 
-		var firstRecord *db.Record
-		var lastRecord *db.Record
 
-		if len(trackerRecords) > 0 {
-			firstRecord = &trackerRecords[0]
-			lastRecord = &trackerRecords[len(trackerRecords) - 1]
-		}
-
-		trackerRecordsResponse := make([]db.RecordResponse, len(trackerRecords))
+		trackerRecordsResponse := make([]db.Record, len(trackerRecords))
 		for index, value := range trackerRecords {
-			trackerRecordsResponse[index] = value.ToResponse()
+			trackerRecordsResponse[index] = value
 		}
 
 		trackerResponses[i] = db.TrackerResponse{
 			Tracker: tracker,
-			LastRecord: lastRecord,
-			FirstRecord: firstRecord,
 			Records: trackerRecordsResponse,
 		}
 	}

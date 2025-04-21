@@ -132,55 +132,6 @@ func (service *Service) SaveRecord(c *gin.Context){
 	}
 }
 
-func (service *Service) GetLatestRecord(c *gin.Context){
-	trackerId := c.Param("trackerId")
-	_, err := service.getTrackerById(trackerId)
-
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
-			c.JSON(http.StatusNotFound, gin.H{"message": "Tracker not found"})
-			return
-		}
-
-		println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	var record db.Record
-	if err := service.DB.Order("created_at desc").Where("tracker_id = ?", trackerId).First(&record).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
-			c.JSON(http.StatusOK, nil)
-			return
-		}
-
-		println(err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, record)
-}
-
-func(service *Service) GetAllRecords(c *gin.Context){
-	trackerId := c.Param("trackerId")
-
-	if _, err := service.getTrackerById(trackerId); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
-			c.JSON(http.StatusNotFound, gin.H{"message": "Tracker not found"})
-			return
-		}
-
-		println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	var records []db.Record
-	service.DB.Order("created_at asc").Where("tracker_id = ?", trackerId).Find(&records)
-
-	c.JSON(http.StatusOK, records)
-}
 
 func(service *Service) GetTrackers(c *gin.Context){
 	var trackers []db.Tracker
