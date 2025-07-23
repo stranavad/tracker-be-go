@@ -16,7 +16,7 @@ type Service struct {
 	types.ServiceConfig
 }
 
-func (service *Service) getSessionById(sessionId uint) (db.Session, error){
+func (service *Service) getSessionById(sessionId uint) (db.Session, error) {
 	var foundSession db.Session
 	if err := service.DB.Where("id = ?", sessionId).First(&foundSession).Error; err != nil {
 		return foundSession, err
@@ -25,11 +25,11 @@ func (service *Service) getSessionById(sessionId uint) (db.Session, error){
 	return foundSession, nil
 }
 
-func (service *Service) ResetSessionTracker(c *gin.Context){
+func (service *Service) ResetSessionTracker(c *gin.Context) {
 	var request ResetSessionTrackerDto
 
 	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()});
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -39,7 +39,7 @@ func (service *Service) ResetSessionTracker(c *gin.Context){
 	}
 }
 
-func (service *Service) UpdateSession(c *gin.Context){
+func (service *Service) UpdateSession(c *gin.Context) {
 	sessionIdRaw, err := strconv.ParseUint(c.Param("sessionId"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid session ID param"})
@@ -49,14 +49,13 @@ func (service *Service) UpdateSession(c *gin.Context){
 
 	var request StartSessionDto
 	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()});
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-
 	foundSession, err := service.getSessionById(sessionId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"message": "Session not found"})
 			return
 		}
@@ -77,10 +76,10 @@ func (service *Service) UpdateSession(c *gin.Context){
 	c.JSON(http.StatusOK, foundSession)
 }
 
-func (service *Service) StartSession(c *gin.Context){
+func (service *Service) StartSession(c *gin.Context) {
 	var request StartSessionDto
 	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()});
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -100,7 +99,7 @@ func (service *Service) StartSession(c *gin.Context){
 
 			return
 		}
-	} else if !errors.Is(err, gorm.ErrRecordNotFound){
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		println("Checking for ended session failed")
 		println(err.Error())
 
@@ -109,9 +108,8 @@ func (service *Service) StartSession(c *gin.Context){
 		return
 	}
 
-
-	sessionToCreate := db.Session {
-		Name: request.Name,
+	sessionToCreate := db.Session{
+		Name:      request.Name,
 		StartTime: time.Now(),
 	}
 
@@ -128,7 +126,7 @@ func (service *Service) StartSession(c *gin.Context){
 	c.JSON(http.StatusOK, sessionToCreate)
 }
 
-func (service *Service) StopSession(c *gin.Context){
+func (service *Service) StopSession(c *gin.Context) {
 	sessionIdRaw, err := strconv.ParseUint(c.Param("sessionId"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid session ID param"})
@@ -139,7 +137,7 @@ func (service *Service) StopSession(c *gin.Context){
 	session, err := service.getSessionById(sessionId)
 
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"message": "Session not found"})
 			return
 		}
@@ -173,7 +171,7 @@ func (service *Service) StopSession(c *gin.Context){
 	c.JSON(http.StatusOK, updatedSession)
 }
 
-func (service *Service) GetSessionById(c *gin.Context){
+func (service *Service) GetSessionById(c *gin.Context) {
 	sessionIdRaw, err := strconv.ParseUint(c.Param("sessionId"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid session ID param"})
@@ -184,7 +182,7 @@ func (service *Service) GetSessionById(c *gin.Context){
 	foundSession, err := service.getSessionById(sessionId)
 
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"message": "Session not found"})
 			return
 		}
@@ -207,6 +205,13 @@ func (service *Service) GetSessionById(c *gin.Context){
 		return
 	}
 
+	var teamsToSession []db.TeamToSession
+	if err := service.DB.Preload("Team").Where("session_id = ?", sessionId).Find(&teamsToSession).Error; err != nil {
+		println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
 	trackerMap := make(map[string][]db.Record)
 
 	for _, value := range records {
@@ -217,27 +222,34 @@ func (service *Service) GetSessionById(c *gin.Context){
 	for i, tracker := range trackers {
 		trackerRecords := trackerMap[tracker.ID]
 
-
 		trackerRecordsResponse := make([]db.Record, len(trackerRecords))
 		for index, value := range trackerRecords {
 			trackerRecordsResponse[index] = value
 		}
 
+		var foundTeam *db.Team
+		for _, teamToSession := range teamsToSession {
+			if teamToSession.TrackerID == tracker.ID {
+				foundTeam = &teamToSession.Team
+			}
+		}
+
 		trackerResponses[i] = db.TrackerResponse{
 			Tracker: tracker,
+			Team:    foundTeam,
 			Records: trackerRecordsResponse,
 		}
 	}
 
 	sessionResponse := db.SessionResponse{
-		Session: foundSession,
+		Session:  foundSession,
 		Trackers: trackerResponses,
 	}
 
 	c.JSON(http.StatusOK, sessionResponse)
 }
 
-func (service *Service) ListSessions(c *gin.Context){
+func (service *Service) ListSessions(c *gin.Context) {
 	var foundSessions []db.Session
 
 	if err := service.DB.Order("start_time desc").Find(&foundSessions).Error; err != nil {
@@ -247,4 +259,32 @@ func (service *Service) ListSessions(c *gin.Context){
 	}
 
 	c.JSON(http.StatusOK, foundSessions)
+}
+
+func (service *Service) UpdateTeamToTracker(c *gin.Context) {
+	var request UpdateTeamToTrackerDto
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	var foundTeamToTracker db.TeamToSession
+	if err := service.DB.Where("session_id = ?", request.SessionID).Where("tracker_id = ?", request.TrackerID).First(&foundTeamToTracker).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			println(err.Error())
+			c.JSON(http.StatusNotFound, gin.H{"message": "Something went wrong"})
+			return
+		}
+	}
+	if foundTeamToTracker.ID > 0 {
+		service.DB.Delete(&foundTeamToTracker)
+	}
+
+	teamToTracker := db.TeamToSession{
+		SessionID: request.SessionID,
+		TrackerID: request.TrackerID,
+		TeamID:    request.TeamID,
+	}
+
+	service.DB.Save(&teamToTracker)
 }

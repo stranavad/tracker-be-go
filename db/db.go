@@ -36,6 +36,14 @@ type Team struct {
 	GroupID uint   `json:"groupId"`
 }
 
+type TeamToSession struct {
+	GormModelDefault
+	TeamID    uint   `json:"teamId"`
+	SessionID uint   `json:"sessionId"`
+	TrackerID string `json:"trackerId"`
+	Team      Team   `json:"team"`
+}
+
 type Tracker struct {
 	ID    string `gorm:"primarykey" json:"id"`
 	Name  string `json:"name"`
@@ -131,6 +139,7 @@ type SessionResponse struct {
 
 type TrackerResponse struct {
 	Tracker
+	Team    *Team    `json:"team"`
 	Records []Record `json:"records"`
 }
 
@@ -154,7 +163,7 @@ func init() {
 		panic("Failed to connect database")
 	}
 
-	err = db.AutoMigrate(&Session{}, &Tracker{}, &Record{}, &Device{}, &DeviceHealth{}, &Group{}, &Team{})
+	err = db.AutoMigrate(&Session{}, &Tracker{}, &Record{}, &Device{}, &DeviceHealth{}, &Group{}, &Team{}, &TeamToSession{})
 	if err != nil {
 		panic("Failed to migrate database")
 	}

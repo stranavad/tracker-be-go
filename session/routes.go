@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine, config types.ServiceConfig){
+func RegisterRoutes(r *gin.Engine, config types.ServiceConfig) {
 	service := Service{config}
 
 	sessionGroup := r.Group("/session")
@@ -16,4 +16,5 @@ func RegisterRoutes(r *gin.Engine, config types.ServiceConfig){
 	sessionGroup.PUT("/:sessionId", service.UpdateSession)
 	sessionGroup.GET("/:sessionId", service.GetSessionById)
 	sessionGroup.GET("/list", service.ListSessions)
+	sessionGroup.POST("/team-to-tracker", service.UpdateTeamToTracker)
 }
