@@ -3,6 +3,7 @@ package main
 import (
 	"tracker/db"
 	"tracker/health"
+	"tracker/manage"
 	"tracker/session"
 	"tracker/tracker"
 	"tracker/types"
@@ -23,13 +24,13 @@ func main() {
 		ExposeHeaders:   []string{"Content-Length", "Content-Type", "Authorization"},
 	}))
 
-
-	serviceConfig := types.ServiceConfig {
+	serviceConfig := types.ServiceConfig{
 		DB: db.GetDb(),
 	}
 
 	tracker.RegisterRoutes(r, serviceConfig)
 	session.RegisterRoutes(r, serviceConfig)
 	health.RegisterRoutes(r, serviceConfig)
+	manage.RegisterRoutes(r, serviceConfig)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
